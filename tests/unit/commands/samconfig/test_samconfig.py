@@ -117,10 +117,10 @@ class TestSamConfigForAllCommands(TestCase):
             "docker_network": "mynetwork",
             "skip_pull_image": True,
             "parameter_overrides": "ParameterKey=Key,ParameterValue=Value ParameterKey=Key2,ParameterValue=Value2",
-            "container_env_var": [("")],
+            "container_env_var": [""],
             "container_env_var_file": "file",
-            "build_image": [("")],
-            "exclude": [("")],
+            "build_image": [""],
+            "exclude": [""],
             "mount_with": "read",
             "mount_symlinks": True,
         }
@@ -178,10 +178,10 @@ class TestSamConfigForAllCommands(TestCase):
             "docker_network": "mynetwork",
             "skip_pull_image": True,
             "parameter_overrides": "ParameterKey=Key,ParameterValue=Value ParameterKey=Key2,ParameterValue=Value2",
-            "container_env_var": [("")],
+            "container_env_var": [""],
             "container_env_var_file": "file",
-            "build_image": [("")],
-            "exclude": [("")],
+            "build_image": [""],
+            "exclude": [""],
             "mount_with": "read",
         }
 
@@ -237,10 +237,10 @@ class TestSamConfigForAllCommands(TestCase):
             "docker_network": "mynetwork",
             "skip_pull_image": True,
             "parameter_overrides": "ParameterKey=Key,ParameterValue=Value ParameterKey=Key2,ParameterValue=Value2",
-            "container_env_var": [("")],
+            "container_env_var": [""],
             "container_env_var_file": "file",
-            "build_image": [("")],
-            "exclude": [("")],
+            "build_image": [""],
+            "exclude": [""],
             "mount_with": "read",
         }
 
@@ -297,10 +297,10 @@ class TestSamConfigForAllCommands(TestCase):
             "docker_network": "mynetwork",
             "skip_pull_image": True,
             "parameter_overrides": "ParameterKey=Key,ParameterValue=Value ParameterKey=Key2,ParameterValue=Value2",
-            "container_env_var": [("")],
+            "container_env_var": [""],
             "container_env_var_file": "file",
-            "build_image": [("")],
-            "exclude": [("")],
+            "build_image": [""],
+            "exclude": [""],
             "mount_with": "read",
         }
 
@@ -358,10 +358,10 @@ class TestSamConfigForAllCommands(TestCase):
             "docker_network": "mynetwork",
             "skip_pull_image": True,
             "parameter_overrides": "ParameterKey=Key,ParameterValue=Value ParameterKey=Key2,ParameterValue=Value2",
-            "container_env_var": [("")],
+            "container_env_var": [""],
             "container_env_var_file": "file",
-            "build_image": [("")],
-            "exclude": [("")],
+            "build_image": [""],
+            "exclude": [""],
             "mount_with": "read",
         }
 
@@ -418,7 +418,7 @@ class TestSamConfigForAllCommands(TestCase):
             "docker_network": "mynetwork",
             "skip_pull_image": True,
             "parameter_overrides": "ParameterKey=Key,ParameterValue=Value ParameterKey=Key2,ParameterValue=Value2",
-            "container_env_var": [("")],
+            "container_env_var": [""],
             "container_env_var_file": "env_vars_file",
             "mount_with": "read",
         }
@@ -585,6 +585,7 @@ class TestSamConfigForAllCommands(TestCase):
                 None,
                 True,
                 True,
+                None,
             )
 
     @patch("samcli.commands.local.invoke.cli.do_cli")
@@ -653,6 +654,7 @@ class TestSamConfigForAllCommands(TestCase):
                 "python3.11",
                 True,
                 True,
+                None,
             )
 
     @patch("samcli.commands.local.start_api.cli.do_cli")
@@ -765,6 +767,7 @@ class TestSamConfigForAllCommands(TestCase):
 
             do_cli_mock.assert_called_with(
                 ANY,
+                (),  # function_logical_ids
                 "127.0.0.1",
                 12345,
                 str(Path(os.getcwd(), "mytemplate.yaml")),
@@ -1657,6 +1660,7 @@ class TestSamConfigWithOverrides(TestCase):
 
             do_cli_mock.assert_called_with(
                 ANY,
+                (),  # function_logical_ids
                 "otherhost",
                 9999,
                 str(Path(os.getcwd(), "othertemplate.yaml")),
@@ -1756,6 +1760,7 @@ class TestSamConfigWithOverrides(TestCase):
 
             do_cli_mock.assert_called_with(
                 ANY,
+                (),  # function_logical_ids
                 "otherhost",
                 9999,
                 str(Path(os.getcwd(), "envtemplate.yaml")),

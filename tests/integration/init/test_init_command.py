@@ -74,7 +74,7 @@ class TestBasicInitCommand(TestCase):
                     "--package-type",
                     IMAGE,
                     "--base-image",
-                    "amazon/nodejs18.x-base",
+                    "amazon/nodejs22.x-base",
                     "--dependency-manager",
                     "npm",
                     "--name",
@@ -100,7 +100,7 @@ class TestBasicInitCommand(TestCase):
                     get_sam_command(),
                     "init",
                     "--runtime",
-                    "nodejs18.x",
+                    "nodejs22.x",
                     "--dependency-manager",
                     "npm",
                     "--app-template",
@@ -363,7 +363,7 @@ class TestBasicInitCommand(TestCase):
                     get_sam_command(),
                     "init",
                     "--runtime",
-                    "nodejs18.x",
+                    "nodejs22.x",
                     "--dependency-manager",
                     "npm",
                     "--app-template",
@@ -393,7 +393,7 @@ class TestBasicInitCommand(TestCase):
                     get_sam_command(),
                     "init",
                     "--runtime",
-                    "nodejs18.x",
+                    "nodejs22.x",
                     "--dependency-manager",
                     "npm",
                     "--app-template",
@@ -423,7 +423,7 @@ class TestBasicInitCommand(TestCase):
                     get_sam_command(),
                     "init",
                     "--runtime",
-                    "nodejs18.x",
+                    "nodejs22.x",
                     "--dependency-manager",
                     "npm",
                     "--app-template",
@@ -453,7 +453,7 @@ class TestBasicInitCommand(TestCase):
                     get_sam_command(),
                     "init",
                     "--runtime",
-                    "nodejs18.x",
+                    "nodejs22.x",
                     "--dependency-manager",
                     "npm",
                     "--app-template",
@@ -515,7 +515,7 @@ class TestBasicInitCommand(TestCase):
                     get_sam_command(),
                     "init",
                     "--runtime",
-                    "nodejs18.x",
+                    "nodejs22.x",
                     "--dependency-manager",
                     "npm",
                     "--app-template",
@@ -912,7 +912,7 @@ class TestInteractiveInit(TestCase):
 1
 1
 N
-11
+13
 1
 1
 N
@@ -1064,7 +1064,7 @@ class TestInitProducesSamconfigFile(TestCase):
                     "--package-type",
                     IMAGE,
                     "--base-image",
-                    "amazon/nodejs18.x-base",
+                    "amazon/nodejs22.x-base",
                     "--dependency-manager",
                     "npm",
                     "--name",

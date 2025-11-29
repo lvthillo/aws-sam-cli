@@ -62,6 +62,12 @@ class GlobalConfig(metaclass=Singleton):
     # Env var for injecting dir in integration tests
     _DIR_INJECTION_ENV_VAR: str = "__SAM_CLI_APP_DIR"
 
+    # Env var used by docker client to specify which socket to use
+    DOCKER_HOST_ENV_VAR: str = "DOCKER_HOST"
+
+    # Env var used to override docker API version to use
+    DOCKER_API_ENV_VAR: str = "SAM_DOCKER_API_VERSION"
+
     # Static singleton instance
 
     _access_lock: threading.RLock
@@ -71,6 +77,7 @@ class GlobalConfig(metaclass=Singleton):
     _config_data: Optional[Dict[str, Any]]
     # config_keys that should be flushed to file
     _persistent_fields: List[str]
+    docker_host: str
 
     def __init__(self):
         """__init__ should only be called once due to Singleton metaclass"""
@@ -79,6 +86,7 @@ class GlobalConfig(metaclass=Singleton):
         self._config_filename = None
         self._config_data = None
         self._persistent_fields = list()
+        self.docker_host = os.environ.get(GlobalConfig.DOCKER_HOST_ENV_VAR, "")
 
     @property
     def config_dir(self) -> Path:

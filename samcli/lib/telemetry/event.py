@@ -4,7 +4,7 @@ Represents Events and their values.
 
 import logging
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import List, Optional
 from uuid import UUID, uuid4
@@ -110,7 +110,9 @@ class Event:
         if not thread_id:
             thread_id = uuid4()
         self.thread_id = thread_id
-        self.time_stamp = str(datetime.utcnow())[:-3]  # format microseconds from 6 -> 3 figures to allow SQL casting
+        self.time_stamp = str(datetime.now(timezone.utc))[
+            :-3
+        ]  # format microseconds from 6 -> 3 figures to allow SQL casting
         self.exception_name = exception_name
 
     def __eq__(self, other):
@@ -285,6 +287,10 @@ class EventTracker:
 
         telemetry = Telemetry()
         metric = Metric("events")
+
+        # Add container engine information for all event runs
+        msa["containerEngine"] = metric._get_container_host()
+
         metric.add_data("sessionId", EventTracker._session_id)
         metric.add_data("commandName", EventTracker._command_name)
         metric.add_data("metricSpecificAttributes", msa)

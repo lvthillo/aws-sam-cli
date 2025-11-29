@@ -6,6 +6,7 @@ import json
 import os
 import re
 import tempfile
+from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
 from typing import List, Optional
@@ -20,6 +21,31 @@ from tests.testing_utils import (
     run_command,
     get_sam_command,
 )
+
+from cfnlint.helpers import load_resource
+from cfnlint.data import AdditionalSpecs
+
+
+# cfn-lint has a dynamic validation for deprecated runtimes depending on the date, and the error will change according to that
+# some of the logic from cfn-lint):
+# https://github.com/aws-cloudformation/cfn-lint/blob/baa4f017592fc56f7f11f10d22c8044ff36c3f6a/src/cfnlint/rules/resources/lmbd/DeprecatedRuntimeEol.py#L32
+def get_runtime_deprecation_values(runtime):
+    current_date = datetime.today()
+    # Runtime deprecation dates: https://github.com/aws-cloudformation/cfn-lint/blob/main/src/cfnlint/data/AdditionalSpecs/LmbdRuntimeLifecycle.json
+    deprecated_runtimes = load_resource(AdditionalSpecs, "LmbdRuntimeLifecycle.json")
+    runtime_data = deprecated_runtimes.get(runtime)
+    # Not deprecated
+    if not runtime_data or current_date < datetime.strptime(runtime_data["deprecated"], "%Y-%m-%d"):
+        return None
+    # Deprecated but not create-blocked yet
+    if current_date < datetime.strptime(runtime_data["create-block"], "%Y-%m-%d"):
+        return {"code": "W2531", "msg": "Check if EOL Lambda Function Runtimes are used"}
+    # Create-blocked but not update-blocked
+    if current_date < datetime.strptime(runtime_data["update-block"], "%Y-%m-%d"):
+        return {"code": "E2531", "msg": "Validate if lambda runtime is deprecated"}
+    # Fully deprecated including update-blocked
+    return {"code": "E2533", "msg": "Check if Lambda Function Runtimes are updatable"}
+
 
 # Validate tests require credentials and CI/CD will only add credentials to the env if the PR is from the same repo.
 # This is to restrict package tests to run outside of CI/CD, when the branch is not master or tests are not run by Canary
@@ -127,10 +153,18 @@ class TestValidate(TestCase):
 
     @parameterized.expand(
         [
+            ("nodejs",),
+            ("python3.7",),
             ("nodejs16.x",),
+            ("nodejs18.x",),
         ]
     )
     def test_lint_deprecated_runtimes(self, runtime):
+
+        # The message for deprecated runtimes can change according to the current date
+        deprecation_values = get_runtime_deprecation_values(runtime)
+        if not deprecation_values:
+            self.fail(f"Runtime {runtime} is not marked as deprecated. This shouldn't happen in this test.")
         template = {
             "AWSTemplateFormatVersion": "2010-09-09",
             "Transform": "AWS::Serverless-2016-10-31",
@@ -155,10 +189,9 @@ class TestValidate(TestCase):
 
             output = command_result.stdout.decode("utf-8")
             self.assertEqual(command_result.process.returncode, 1)
-            self.assertRegex(
+            self.assertIn(
+                f"[[{deprecation_values['code']}: {deprecation_values['msg']}] (Runtime '{runtime}' was deprecated on ",
                 output,
-                f"\\[\\[E2531: Validate if lambda runtime is deprecated\\] "
-                f"\\(Runtime '{runtime}' was deprecated on.*",
             )
 
     def test_lint_supported_runtimes(self):
@@ -173,7 +206,6 @@ class TestValidate(TestCase):
             "java17",
             "java11",
             "java8.al2",
-            "nodejs18.x",
             "nodejs20.x",
             "nodejs22.x",
             "provided.al2",
@@ -185,6 +217,7 @@ class TestValidate(TestCase):
             "python3.13",
             "ruby3.2",
             "ruby3.3",
+            "ruby3.4",
         ]
         i = 0
         for runtime in supported_runtimes:
@@ -243,9 +276,9 @@ class TestValidate(TestCase):
 
         warning_message = (
             "[[E0000: Parsing error found when parsing the template] "
-            '(Duplicate found "HelloWorldFunction" (line 5)) matched 5, '
+            "(Duplicate found 'HelloWorldFunction' (line 5)) matched 5, "
             "[E0000: Parsing error found when parsing the template] "
-            '(Duplicate found "HelloWorldFunction" (line 12)) matched 12]\n'
+            "(Duplicate found 'HelloWorldFunction' (line 12)) matched 12]\n"
         )
 
         self.assertIn(warning_message, output)
